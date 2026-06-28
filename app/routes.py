@@ -27,6 +27,19 @@ def create_address(
 ):
     return crud.create_address(db, address)
 
+@router.post(
+    "/addresses/bulk",
+    response_model=schemas.AddressResponse,
+    summary="Bulk Create Addresses"
+)
+def create_bulk_addresses(
+    payload: schemas.BulkAddressCreate,
+    db: Session = Depends(get_db)
+):
+    return crud.create_bulk_addresses(
+        db,
+        payload.data
+    )
 
 @router.get(
     "/addresses",

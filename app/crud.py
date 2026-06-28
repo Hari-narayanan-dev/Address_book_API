@@ -44,6 +44,59 @@ def create_address(db: Session, address: AddressCreate):
         "message": "Address created successfully.",
     }
 
+def create_bulk_addresses(
+    db: Session,
+    addresses: list[BulkAddressItem]
+):
+
+    created = []
+    duplicates = []
+
+    for address in addresses:
+
+        duplicate = (
+            db.query(Address)
+            .filter(
+                Address.name == address.name,
+                Address.street == address.street,
+                Address.city == address.city,
+                Address.latitude == address.latitude,
+                Address.longitude == address.longitude,
+            )
+            .first()
+        )
+
+        if duplicate:
+            duplicates.append(address.name)
+            continue
+
+        db_address = Address(
+            name=address.name,
+            street=address.street,
+            city=address.city,
+            latitude=address.latitude,
+            longitude=address.longitude,
+        )
+
+        db.add(db_address)
+        created.append(db_address)
+
+    db.commit()
+
+    for address in created:
+        db.refresh(address)
+
+    return {
+        "success": True,
+        "message": "Bulk address creation completed.",
+        "data": {
+            "total_received": len(addresses),
+            "created_count": len(created),
+            "duplicate_count": len(duplicates),
+            "duplicates": duplicates
+        }
+    }
+
 def get_addresses(db: Session):
     addresses = db.query(Address).all()
     if not addresses:

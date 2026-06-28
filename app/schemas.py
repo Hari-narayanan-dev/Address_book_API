@@ -47,5 +47,16 @@ class AddressResponse(BaseModel):
 class AddressCreate(AddressData):
     pass
 
+class BulkAddressItem(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    street: str = Field(..., min_length=3, max_length=255)
+    city: str = Field(..., min_length=2, max_length=100)
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+
+
+class BulkAddressCreate(BaseModel):
+    data: list[BulkAddressItem]
+
 class AddressUpdate(AddressData):
     pass
