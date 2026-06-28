@@ -89,3 +89,30 @@ def get_address(db: Session, address_id: int):
         }
     }
 
+
+def update_address(db: Session, address_id: int, updated: AddressCreate):
+    address = db.query(Address).filter(Address.id == address_id).first()
+
+    if not address:
+        return JSONResponse(
+        status_code=404,
+        content={
+            "success": False,
+            "message": f"Address with ID {address_id} not found.",
+        })
+
+    address.name = updated.name
+    address.street = updated.street
+    address.city = updated.city
+    address.latitude = updated.latitude
+    address.longitude = updated.longitude
+
+    db.commit()
+    db.refresh(address)
+    return {
+        "success": True,
+        "message": "Address updated successfully.",
+        "data": {
+            "id": address.id,
+        }
+    }

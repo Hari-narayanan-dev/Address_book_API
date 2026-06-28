@@ -46,3 +46,6 @@ class AddressResponse(BaseModel):
 
 class AddressCreate(AddressData):
     pass
+
+class AddressUpdate(AddressData):
+    pass

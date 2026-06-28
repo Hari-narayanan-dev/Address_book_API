@@ -52,3 +52,22 @@ def get_address(
     address_data = crud.get_address(db, address_id)
 
     return address_data
+
+@router.put(
+    "/addresses/{address_id}",
+    response_model=schemas.AddressResponse,
+    summary="Update Address",
+    description="Updates an existing address in the database."
+)
+def update_address(
+    address_id: int,
+    updated: schemas.AddressUpdate,
+    db: Session = Depends(get_db)
+):
+    address_data = crud.update_address(db, address_id, updated)
+    # if not address_data:
+    #     raise HTTPException(
+    #         status_code=404,
+    #         detail="Address not found"
+    #     )
+    return address_data
