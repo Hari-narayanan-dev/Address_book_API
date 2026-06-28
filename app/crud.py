@@ -1,12 +1,13 @@
 from app.models import Address
-from app.schemas import AddressCreate
+from app.schemas import AddressCreate, BulkAddressItem
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from app.utils import haversine
+from app.logger import logger
 
 
 def create_address(db: Session, address: AddressCreate):
-
+    logger.info(f"Creating address: {address.name}")
     existing_address = (
         db.query(Address)
         .filter(
@@ -20,7 +21,7 @@ def create_address(db: Session, address: AddressCreate):
     )
 
     if existing_address:
-
+        logger.warning("Duplicate address found.")
         return {
             "success": False,
             "message": "Address already exists.",
@@ -38,7 +39,7 @@ def create_address(db: Session, address: AddressCreate):
     db.add(db_address)
     db.commit()
     db.refresh(db_address)
-
+    logger.info(f"Address created: {db_address.name}")
     return {
         "success": True,
         "message": "Address created successfully.",
@@ -48,7 +49,9 @@ def create_bulk_addresses(
     db: Session,
     addresses: list[BulkAddressItem]
 ):
-
+    logger.info(
+        f"Bulk creation started. Total addresses: {len(addresses)}"
+    )
     created = []
     duplicates = []
 
@@ -85,6 +88,11 @@ def create_bulk_addresses(
 
     for address in created:
         db.refresh(address)
+    logger.info(
+        f"Bulk creation completed. "
+        f"Created={len(created)}, "
+        f"Duplicates={len(duplicates)}"
+    )
 
     return {
         "success": True,
@@ -98,12 +106,15 @@ def create_bulk_addresses(
     }
 
 def get_addresses(db: Session):
+    logger.info("Fetching all addresses")
     addresses = db.query(Address).all()
     if not addresses:
+        logger.warning("No addresses found in the database")
         return {
             "success": False,
             "message": "No addresses found.",
         }
+    logger.info(f"Found {len(addresses)} addresses")
     return {
         "success": True,
         "message": "Addresses retrieved successfully.",
@@ -121,8 +132,10 @@ def get_addresses(db: Session):
     }
 
 def get_address(db: Session, address_id: int):
+    logger.info(f"Fetching address with ID: {address_id}")
     address = db.query(Address).filter(Address.id == address_id).first()
     if not address:
+        logger.warning(f"Address not found | ID={address_id}")
         return JSONResponse(
         status_code=404,
         content={
@@ -130,6 +143,7 @@ def get_address(db: Session, address_id: int):
             "message": f"Address with ID {address_id} not found.",
         }
     )
+    logger.info(f"Address fetched: {address.name if address else 'Not found'}")
     return {
         "success": True,
         "message": "Address fetched successfully.",
@@ -145,9 +159,11 @@ def get_address(db: Session, address_id: int):
 
 
 def update_address(db: Session, address_id: int, updated: AddressCreate):
+    logger.info(f"Updating address with ID: {address_id}")
     address = db.query(Address).filter(Address.id == address_id).first()
 
     if not address:
+        logger.warning(f"Update failed | Address ID={address_id}. Address with ID: {address_id} not found")
         return JSONResponse(
         status_code=404,
         content={
@@ -163,6 +179,7 @@ def update_address(db: Session, address_id: int, updated: AddressCreate):
 
     db.commit()
     db.refresh(address)
+    logger.info(f"Address updated successfully | ID={address.id}")
     return {
         "success": True,
         "message": "Address updated successfully.",
@@ -173,9 +190,11 @@ def update_address(db: Session, address_id: int, updated: AddressCreate):
 
 
 def delete_address(db: Session, address_id: int):
+    logger.warning(f"Deleting Address with ID: {address_id}")
     address = db.query(Address).filter(Address.id == address_id).first()
 
     if not address:
+        logger.warning(f"Address with ID: {address_id} not found")
         return JSONResponse(
             status_code=404,
             content={
@@ -186,7 +205,7 @@ def delete_address(db: Session, address_id: int):
 
     db.delete(address)
     db.commit()
-
+    logger.info(f"Address deleted successfully | ID={address_id}")
     return {
         "success": True,
         "message": "Address deleted successfully.",
@@ -201,6 +220,7 @@ def get_nearby_addresses(
     longitude: float,
     distance: float,
 ):
+    logger.info(f"Fetching nearby addresses within {distance} km")
     addresses = db.query(Address).all()
 
     nearby = []
@@ -228,10 +248,14 @@ def get_nearby_addresses(
                 }
             )
         else:
+            logger.debug(
+                f"Address ID={address.id} is {d:.2f} km away, which is beyond the specified distance."
+            )
             return {
                 "success": False,
                 "message": "No Nearby addresses Found.",
             }
+    logger.info(f"Found {len(nearby)} nearby addresses")
     return {
         "success": True,
         "message": "Nearby addresses retrieved successfully.",

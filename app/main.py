@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routes import router
+from app.logger import logger
 from app.database import initialize_database
 app = FastAPI(
     title="Address Book API",
@@ -11,5 +12,5 @@ app = FastAPI(
     }
 )
 initialize_database()
-
+logger.info("Starting Address Book API")
 app.include_router(router)

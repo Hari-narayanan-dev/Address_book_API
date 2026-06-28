@@ -2,6 +2,7 @@ from fastapi import APIRouter, status, Depends
 from app import crud, schemas
 from sqlalchemy.orm import Session
 from app.database import get_db
+from app.logger import logger
 
 router = APIRouter(
     tags=["Address Management"]
@@ -63,11 +64,18 @@ def nearby_addresses(
     distance: float,
     db: Session = Depends(get_db),
 ):
+    logger.info(
+        f"Nearby search requested | "
+        f"Latitude={latitude}, Longitude={longitude}, Radius={distance} km"
+    )
     results = crud.get_nearby_addresses(
         db,
         latitude,
         longitude,
         distance,
+    )
+    logger.info(
+        f"Nearby search completed | {len(results)} address(es) found."
     )
     return results
 
