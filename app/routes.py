@@ -65,11 +65,6 @@ def update_address(
     db: Session = Depends(get_db)
 ):
     address_data = crud.update_address(db, address_id, updated)
-    # if not address_data:
-    #     raise HTTPException(
-    #         status_code=404,
-    #         detail="Address not found"
-    #     )
     return address_data
 
 
