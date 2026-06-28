@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routes import router
-
+from app.database import initialize_database
 app = FastAPI(
     title="Address Book API",
     description="A RESTful API for managing addresses with CRUD operations and nearby location search using FastAPI and SQLite.",
@@ -10,5 +10,6 @@ app = FastAPI(
         "email": "harinarayananpari@gmail.com"
     }
 )
+initialize_database()
 
 app.include_router(router)
