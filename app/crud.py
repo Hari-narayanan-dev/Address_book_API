@@ -41,3 +41,27 @@ def create_address(db: Session, address: AddressCreate):
         "success": True,
         "message": "Address created successfully.",
     }
+
+def get_addresses(db: Session):
+    addresses = db.query(Address).all()
+    if not addresses:
+        return {
+            "success": False,
+            "message": "No addresses found.",
+        }
+    return {
+        "success": True,
+        "message": "Addresses retrieved successfully.",
+        "data": [
+        {
+            "id": a.id,
+            "name": a.name,
+            "street": a.street,
+            "city": a.city,
+            "latitude": a.latitude,
+            "longitude": a.longitude,
+        }
+        for a in addresses
+    ]
+    }
+

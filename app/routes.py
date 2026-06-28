@@ -26,3 +26,15 @@ def create_address(
     db: Session = Depends(get_db),
 ):
     return crud.create_address(db, address)
+
+
+@router.get(
+    "/addresses",
+    response_model=schemas.AddressResponse,
+    summary="Get All Addresses",
+    description="Returns all addresses stored in the database."
+)
+def get_addresses(
+    db: Session = Depends(get_db)
+):
+    return crud.get_addresses(db)
