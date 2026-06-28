@@ -38,3 +38,17 @@ def get_addresses(
     db: Session = Depends(get_db)
 ):
     return crud.get_addresses(db)
+
+@router.get(
+    "/addresses/{address_id}",
+    response_model=schemas.AddressResponse,
+    summary="Get Address by ID",
+    description="Returns a single address using its unique ID."
+)
+def get_address(
+    address_id: int,
+    db: Session = Depends(get_db)
+):
+    address_data = crud.get_address(db, address_id)
+
+    return address_data
