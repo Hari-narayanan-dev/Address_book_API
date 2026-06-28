@@ -43,3 +43,6 @@ class AddressResponse(BaseModel):
     success: bool
     message: str
     data: Any | None = None
+
+class AddressCreate(AddressData):
+    pass
