@@ -247,17 +247,14 @@ def get_nearby_addresses(
                     "distance_km": round(d, 2),
                 }
             )
-        else:
-            logger.debug(
-                f"Address ID={address.id} is {d:.2f} km away, which is beyond the specified distance."
-            )
-            return {
-                "success": False,
-                "message": "No Nearby addresses Found.",
-            }
+    if not nearby:
+        return {
+            "success": False,
+            "message": "No Nearby addresses Found.",
+        }
     logger.info(f"Found {len(nearby)} nearby addresses")
     return {
         "success": True,
-        "message": "Nearby addresses retrieved successfully.",
+        "message": f"{len(nearby)} Nearby addresses retrieved successfully.",
         "data": nearby
     }
