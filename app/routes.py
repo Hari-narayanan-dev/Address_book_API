@@ -40,6 +40,25 @@ def get_addresses(
     return crud.get_addresses(db)
 
 @router.get(
+    "/addresses/nearby",
+    summary="Find Nearby Addresses",
+    description="Returns all addresses within the specified distance in kilometers."
+)
+def nearby_addresses(
+    latitude: float,
+    longitude: float,
+    distance: float,
+    db: Session = Depends(get_db),
+):
+    results = crud.get_nearby_addresses(
+        db,
+        latitude,
+        longitude,
+        distance,
+    )
+    return results
+
+@router.get(
     "/addresses/{address_id}",
     response_model=schemas.AddressResponse,
     summary="Get Address by ID",
@@ -80,22 +99,3 @@ def delete_address(
     address_data = crud.delete_address(db, address_id)
 
     return address_data
-
-@router.get(
-    "/addresses/nearby",
-    summary="Find Nearby Addresses",
-    description="Returns all addresses within the specified distance in kilometers."
-)
-def nearby_addresses(
-    latitude: float,
-    longitude: float,
-    distance: float,
-    db: Session = Depends(get_db),
-):
-    results = crud.get_nearby_addresses(
-        db,
-        latitude,
-        longitude,
-        distance,
-    )
-    return results
