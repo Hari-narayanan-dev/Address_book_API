@@ -2,6 +2,7 @@ from app.models import Address
 from app.schemas import AddressCreate
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
+from app.utils import haversine
 
 
 def create_address(db: Session, address: AddressCreate):
@@ -139,4 +140,47 @@ def delete_address(db: Session, address_id: int):
         "data":{
             "id": address.id,
         }
+    }
+
+def get_nearby_addresses(
+    db: Session,
+    latitude: float,
+    longitude: float,
+    distance: float,
+):
+    addresses = db.query(Address).all()
+
+    nearby = []
+
+    for address in addresses:
+
+        d = haversine(
+            latitude,
+            longitude,
+            address.latitude,
+            address.longitude,
+        )
+
+        if d <= distance:
+
+            nearby.append(
+                {
+                    "id": address.id,
+                    "name": address.name,
+                    "street": address.street,
+                    "city": address.city,
+                    "latitude": address.latitude,
+                    "longitude": address.longitude,
+                    "distance_km": round(d, 2),
+                }
+            )
+        else:
+            return {
+                "success": False,
+                "message": "No Nearby addresses Found.",
+            }
+    return {
+        "success": True,
+        "message": "Nearby addresses retrieved successfully.",
+        "data": nearby
     }
