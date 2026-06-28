@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.routes import router
 
 app = FastAPI(
     title="Address Book API",
@@ -9,3 +10,5 @@ app = FastAPI(
         "email": "harinarayananpari@gmail.com"
     }
 )
+
+app.include_router(router)
