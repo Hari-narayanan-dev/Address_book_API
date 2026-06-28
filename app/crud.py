@@ -116,3 +116,27 @@ def update_address(db: Session, address_id: int, updated: AddressCreate):
             "id": address.id,
         }
     }
+
+
+def delete_address(db: Session, address_id: int):
+    address = db.query(Address).filter(Address.id == address_id).first()
+
+    if not address:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "success": False,
+                "message": f"Address with ID {address_id} not found.",
+            }
+        )
+
+    db.delete(address)
+    db.commit()
+
+    return {
+        "success": True,
+        "message": "Address deleted successfully.",
+        "data":{
+            "id": address.id,
+        }
+    }

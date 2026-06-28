@@ -71,3 +71,17 @@ def update_address(
     #         detail="Address not found"
     #     )
     return address_data
+
+
+@router.delete(
+    "/addresses/{address_id}",
+    summary="Delete Address",
+    description="Deletes an address from the database."
+)
+def delete_address(
+    address_id: int,
+    db: Session = Depends(get_db)
+):
+    address_data = crud.delete_address(db, address_id)
+
+    return address_data
